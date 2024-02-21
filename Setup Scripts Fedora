@@ -1,24 +1,57 @@
 #!/bin/bash
 
+echo "Do you want to have everything run automatically? (Yes/No)"
+read master_answer
+
+if [[ $master_answer = yes ]]; then
+    auto_confirm=true
+    echo "starting automatic setup"
+elif [[ $master_answer = no ]]; then
+    echo "starting manual setup"
+    auto_confirm=false
+fi
+
 # edits dnf config file for parallel downloads
-echo "configuring dnf"
-sudo cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
-sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/dnf/dnf.conf
+if [[ ${master_answer,,} = "yes" ]]; then
+    echo "Configuring DNF parallel downloads"
+    sudo cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
+    sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/dnf/dnf.conf
+elif [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you like to configure DNF parallel downloads? (Y/N)"
+    read download_answer
+    if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
+        echo "Configuring DNF parallel downloads"
+        sudo cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
+        sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/dnf/dnf.conf
+    elif [[ ${download_answer,,} = "n" ]]; then
+        echo "Download cancelled"
+    else
+        echo "Invalid input. Please enter a valid input"
+    fi
+fi
 
 # List of packages
 packages=("neofetch" "gnome-tweaks" "gnome-extensions-app" "gnome-shell-extension-dash-to-dock" "nano" "discord" "edge" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "git" "gimp" "thunderbird" "vlc" "vscode")
+
+# downloads all the packages
+for package in "${packages[@]}"
+do 
+    if [[ ${master_answer,,} = "no" ]]; then
+        echo "Do you want to download $package? (Y/N)"
+        read download_package
+        if [[ ${download_package,,} == "n" ]]; then
+            echo "Skipping $package"
+            continue
+        fi
+    fi
+    echo "Downloading $package..."
+    sudo dnf install -y $package
+done
 
 #enabling RPM Fusion Repository
 echo "Enabling RPM Fusion Repository"
 sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-
-# downloads all the packages
-for package in "${packages[@]}"
-do 
-    echo "Downloading $package..."
-    sudo dnf install -y $package
-done
 
 echo "All packages downloaded successfully"
 
@@ -43,16 +76,19 @@ sudo dnf group upgrade --with-optional Multimedia
 echo "Changing hostname"
 sudo hostnamectl set-hostname "Owen"
 
-# Adds minimize/maximize/close button
+# Adds minimize/maximize button, and dock
 echo "Adding minimize, maximize, and close buttons"
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+echo "adding dock"
+gnome-extensions enable dash-to-dock@micxgx.gmail.com
+
 
 # turns night light on
 echo "Turning on Night Shift"
 gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true
 
 # turns auto reporting off
-echo " Disabling automatic reporting"
+echo "Disabling automatic reporting"
 sudo systemctl stop abrt-journal-core.service
 sudo systemctl disable abrt-journal-core.service
 
