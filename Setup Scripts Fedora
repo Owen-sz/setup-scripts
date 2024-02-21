@@ -65,6 +65,5 @@ sudo systemctl disable abrt-xorg.service
 sudo systemctl stop abrtd.service
 sudo systemctl disable abrtd.service
 
-
 echo "Restarting"
 reboot
