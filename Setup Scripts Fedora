@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# edits dnf config file for parallel downloads
+echo "configuring dnf"
+sudo cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
+sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/dnf/dnf.conf
+
+# List of packages
+packages=("neofetch" "gnome-tweaks" "gnome-extensions-app" "nano" "discord" "edge" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "git" "gimp" "thunderbird" "vlc" "vscode")
+
+#enabling RPM Fusion Repository
+echo "Enabling RPM Fusion Repository
+sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+
+# downloads all the packages
+for package in "${packages[@]}"
+do 
+    echo "Downloading $package..."
+    sudo dnf install -y $package
+done
+
+echo "All packages downloaded successfully"
+
+# upgrades packages. Opera needs packages updated before installing
+echo "Upgrading all packages"
+sudo dnf upgrade -y
+
+echo "Configuring Opera"
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager --add-repo https://rpm.opera.com/rpm
+sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub
+sudo dnf install -y opera-stable
+
+# Multimedia codecs
+echo "Installing multimedia codecs"
+sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
+sudo dnf install -y lame\* --exclude=lame-devel
+echo "Upgrading multimedia codecs"
+sudo dnf group upgrade --with-optional Multimedia
+
+# Change hostname
+echo "Changing hostname"
+sudo hostnamectl set-hostname "Owen"
+
+# Adds minimize/maximize/close button
+echo "Adding minimize, maximize, and close buttons"
+gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+
+# turns night light on
+echo "Turning on Night Shift"
+gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true
+
+# turns auto reporting off
+echo " Disabling automatic reporting"
+sudo systemctl stop abrt-journal-core.service
+sudo systemctl disable abrt-journal-core.service
+
+sudo systemctl stop abrt-oops.service
+sudo systemctl disable abrt-oops.service
+
+sudo systemctl stop abrt-xorg.service
+sudo systemctl disable abrt-xorg.service
+
+sudo systemctl stop abrtd.service
+sudo systemctl disable abrtd.service
+
+
+echo "Restarting"
+reboot
