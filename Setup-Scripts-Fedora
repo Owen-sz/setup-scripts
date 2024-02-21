@@ -4,19 +4,19 @@ echo "Do you want to have everything run automatically? (Yes/No)"
 read master_answer
 
 # Change hostname
-if [[ ${master_answer,,} = "no" ]] || [[ ${master_answer,,} = "yes" ]]; then
-    echo "Before we begin, do you want to change your hostname? (Y/N)"
-    read download_package
-    if [[ ${download_package,,} == "y" ]]; then
-echo "Please enter your desired hostname:"
-read desired_hostname
-echo "Changing hostname to $desired_hostname"
-sudo hostnamectl set-hostname "$desired_hostname"
+echo "Before we begin, do you want to change your hostname? (Y/N)"
+read download_package
+if [[ ${download_package,,} == "y" ]]; then
+    echo "Please enter your desired hostname:"
+    read desired_hostname
+    echo "Changing hostname to $desired_hostname"
+    sudo hostnamectl set-hostname "$desired_hostname"
+fi
 
-if [[ $master_answer = yes ]]; then
+if [[ ${master_answer,,} = "yes" ]]; then
     auto_confirm=true
     echo "starting automatic setup"
-elif [[ $master_answer = no ]]; then
+elif [[ ${master_answer,,} = "no" ]]; then
     echo "starting manual setup"
     auto_confirm=false
 fi
