@@ -6,7 +6,7 @@ sudo cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
 sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/dnf/dnf.conf
 
 # List of packages
-packages=("neofetch" "gnome-tweaks" "gnome-extensions-app" "nano" "discord" "edge" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "git" "gimp" "thunderbird" "vlc" "vscode")
+packages=("neofetch" "gnome-tweaks" "gnome-extensions-app" "gnome-shell-extension-dash-to-dock" "nano" "discord" "edge" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "git" "gimp" "thunderbird" "vlc" "vscode")
 
 #enabling RPM Fusion Repository
 echo "Enabling RPM Fusion Repository"
