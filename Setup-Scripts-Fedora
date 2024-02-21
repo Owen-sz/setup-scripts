@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x  # Enables printing of all commands
 
 echo "Do you want to have everything run automatically? (Yes/No)"
 read master_answer
@@ -10,29 +11,29 @@ if [[ ${download_package,,} == "y" ]]; then
     echo "Please enter your desired hostname:"
     read desired_hostname
     echo "Changing hostname to $desired_hostname"
-    sudo hostnamectl set-hostname "$desired_hostname"
+    sudo hostnamectl set-hostname "$desired_hostname" || echo "Failed to change hostname"
 fi
 
 if [[ ${master_answer,,} = "yes" ]]; then
     auto_confirm=true
     echo "starting automatic setup"
 elif [[ ${master_answer,,} = "no" ]]; then
-    echo "starting manual setup"
+    echo "starting manual setup" ||
     auto_confirm=false
 fi
 
 # edits dnf config file for parallel downloads
 if [[ ${master_answer,,} = "yes" ]]; then
     echo "Configuring DNF parallel downloads"
-    sudo cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
-    sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/dnf/dnf.conf
+    sudo cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak || { echo "Failed to locate DNF file directory"; exit 1; }
+    sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/dnf/dnf.conf || echo "Failed to eonfigure DNF parallel downloads"
 elif [[ ${master_answer,,} = "no" ]]; then
     echo "Would you like to configure DNF parallel downloads? (Y/N)"
     read download_answer
     if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
         echo "Configuring DNF parallel downloads"
-        sudo cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
-        sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/dnf/dnf.conf
+        sudo cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak || { echo "Failed to locate DNF file directory"; exit 1; }
+        sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/dnf/dnf.conf || echo "Failed to eonfigure DNF parallel downloads"
     elif [[ ${download_answer,,} = "n" ]]; then
         echo "Download cancelled"
     else
@@ -55,7 +56,7 @@ do
         fi
     fi
     echo "Downloading $package..."
-    sudo dnf install -y $package
+    sudo dnf install -y $package || echo "Failed to download $package"
 done
 
 if [[ ${master_answer,,} = "no" ]]; then
@@ -66,8 +67,8 @@ if [[ ${master_answer,,} = "no" ]]; then
 
         #enabling RPM Fusion Repository
         echo "Enabling RPM Fusion Repository"
-        sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-        sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+        sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm || { echo "Failed to download RPM Fusion Repository (free)"; exit 1;}
+        sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm || echo "Failed to download RPM Fusion Repository (nonfree)"
 
         echo "All packages downloaded successfully"
     else
@@ -84,7 +85,7 @@ if [[ ${master_answer,,} = "no" ]]; then
         echo "Upgrading packages"
 		
 echo "Upgrading all packages"
-sudo dnf upgrade -y
+sudo dnf upgrade -y || echo "Failed to update $package"
  echo "All packages upgraded successfully"
 fi
 
@@ -94,11 +95,11 @@ if [[ ${master_answer,,} = "no" ]]; then
     if [[ ${download_package,,} != "n" ]]; then
         echo "Installing Opera"
 
-sudo dnf install -y dnf-plugins-core
+sudo dnf install -y dnf-plugins-core || { echo "Failed to install dnf-plugins-core"; exit 1; }
 echo "configuring Opera"
-sudo dnf config-manager --add-repo https://rpm.opera.com/rpm
-sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub
-sudo dnf install -y opera-stable
+sudo dnf config-manager --add-repo https://rpm.opera.com/rpm || { echo "Failed to add Opera Repo"; exit 1; }
+sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub || { echo "Failed to import Opera gpg-key"; exit 1; }
+sudo dnf install -y opera-stable || { echo "Failed to download Opera"; exit 1; }
 echo "Opera successfully installed"
 fi
 
@@ -110,10 +111,10 @@ if [[ ${master_answer,,} = "no" ]]; then
 
 # Multimedia codecs
 echo "Installing multimedia codecs"
-sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
-sudo dnf install -y lame\* --exclude=lame-devel
+sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel || echo "Failed to install a codec"
+sudo dnf install -y lame\* --exclude=lame-devel || { echo "Failed to install a codec"; exit 1}
 echo "Upgrading multimedia codecs"
-sudo dnf group upgrade --with-optional Multimedia
+sudo dnf group upgrade --with-optional Multimedia || echo "Failed to update codec(s)"
 echo "Multimedia Codecs successfully installed"
 fi
 
@@ -123,9 +124,9 @@ if [[ ${master_answer,,} = "no" ]]; then
     read download_package
     if [[ ${download_package,,} != "n" ]]; then
 	echo "Adding minimize, maximize, and close buttons"
-gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close' || echo "Failed to add minimize/maximize buttons"
 echo "adding dock"
-gnome-extensions enable dash-to-dock@micxgx.gmail.com
+gnome-extensions enable dash-to-dock@micxgx.gmail.com || echo "Failed to add dock"
 echo "Minimize and maximize buttons added"
 fi
 
@@ -135,7 +136,7 @@ if [[ ${master_answer,,} = "no" ]]; then
     read download_package
     if [[ ${download_package,,} != "n" ]]; then
 	echo "turning on night light"
-gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true
+gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true || echo "Failed to turn night light on"
 fi
 
 # turns auto reporting off
@@ -144,17 +145,17 @@ if [[ ${master_answer,,} = "no" ]]; then
     read download_package
     if [[ ${download_package,,} != "n" ]]; then
 	echo "disabling automatic reporting"
-sudo systemctl stop abrt-journal-core.service
-sudo systemctl disable abrt-journal-core.service
+sudo systemctl stop abrt-journal-core.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+sudo systemctl disable abrt-journal-core.service || { echo "Failed to turn off automatic reporting"; exit 1 }
 
-sudo systemctl stop abrt-oops.service
-sudo systemctl disable abrt-oops.service
+sudo systemctl stop abrt-oops.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+sudo systemctl disable abrt-oops.service || { echo "Failed to turn off automatic reporting"; exit 1 }
 
-sudo systemctl stop abrt-xorg.service
-sudo systemctl disable abrt-xorg.service
+sudo systemctl stop abrt-xorg.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+sudo systemctl disable abrt-xorg.service || { echo "Failed to turn off automatic reporting"; exit 1 }
 
-sudo systemctl stop abrtd.service
-sudo systemctl disable abrtd.service
+sudo systemctl stop abrtd.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+sudo systemctl disable abrtd.service || { echo "Failed to turn off automatic reporting"; exit 1 }
 echo "Automatic reporting disabled"
 fi
 
@@ -164,4 +165,4 @@ if [[ ${master_answer,,} = "no" ]]; then
     read download_package
     if [[ ${download_package,,} != "n" ]]; then
 	echo "Rebooting"
-reboot
+reboot || echo "Failed to reboot"
