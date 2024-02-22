@@ -100,7 +100,7 @@ if [[ ${master_answer,,} = "no" ]]; then
 		echo "configuring Opera"
 		sudo dnf config-manager --add-repo https://rpm.opera.com/rpm || { echo "Failed to add Opera Repo"; exit 1; }
 		sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub || { echo "Failed to import Opera gpg-key"; exit 1; }
-		sudo dnf install -y opera-stable || { echo "Failed to download Opera"; exit 1; }
+		sudo dnf install -y opera-stable || echo "Failed to download Opera"
 		echo "Opera successfully installed"
 	fi
 fi
