@@ -79,35 +79,37 @@ fi
 # upgrades packages. Opera needs packages updated before installing
 
 if [[ ${master_answer,,} = "no" ]]; then
-    echo "Do you want to update all packages (note - reccomended for Opera install)? (Y/N)"
-    read download_package
-    if [[ ${download_package,,} != "n" ]]; then
-        echo "Upgrading packages"
+	echo "Do you want to update all packages (note - reccomended for Opera install)? (Y/N)"
+	read download_package
+	if [[ ${download_package,,} != "n" ]]; then
+        	echo "Upgrading packages"
+	fi
 		
 echo "Upgrading all packages"
 sudo dnf upgrade -y || echo "Failed to update $package"
- echo "All packages upgraded successfully"
+echo "All packages upgraded successfully"
 fi
 
 if [[ ${master_answer,,} = "no" ]]; then
-    echo "Do you want to install and configure Opera? (Y/N)"
-    read download_package
-    if [[ ${download_package,,} != "n" ]]; then
-        echo "Installing Opera"
-
-sudo dnf install -y dnf-plugins-core || { echo "Failed to install dnf-plugins-core"; exit 1; }
-echo "configuring Opera"
-sudo dnf config-manager --add-repo https://rpm.opera.com/rpm || { echo "Failed to add Opera Repo"; exit 1; }
-sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub || { echo "Failed to import Opera gpg-key"; exit 1; }
-sudo dnf install -y opera-stable || { echo "Failed to download Opera"; exit 1; }
-echo "Opera successfully installed"
+	echo "Do you want to install and configure Opera? (Y/N)"
+	read download_package
+	if [[ ${download_package,,} != "n" ]]; then
+        	echo "Installing Opera"
+	
+		sudo dnf install -y dnf-plugins-core || { echo "Failed to install dnf-plugins-core"; exit 1; }
+		echo "configuring Opera"
+		sudo dnf config-manager --add-repo https://rpm.opera.com/rpm || { echo "Failed to add Opera Repo"; exit 1; }
+		sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub || { echo "Failed to import Opera gpg-key"; exit 1; }
+		sudo dnf install -y opera-stable || { echo "Failed to download Opera"; exit 1; }
+		echo "Opera successfully installed"
+	fi
 fi
 
 if [[ ${master_answer,,} = "no" ]]; then
-    echo "Do you want to install Multimedia Codecs? (Y/N)"
-    read download_package
-    if [[ ${download_package,,} != "n" ]]; then
-        echo "Installing Multimedia Codecs"
+	echo "Do you want to install Multimedia Codecs? (Y/N)"
+	read download_package
+	if [[ ${download_package,,} != "n" ]]; then
+        	echo "Installing Multimedia Codecs"
 	fi 
 fi
 
@@ -134,30 +136,32 @@ fi
 
 # turns night light on
 if [[ ${master_answer,,} = "no" ]]; then
-    echo "Would you like to turn on night light (night shift)? (Y/N)"
-    read download_package
-    if [[ ${download_package,,} != "n" ]]; then
-	echo "turning on night light"
-gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true || echo "Failed to turn night light on"
+	echo "Would you like to turn on night light (night shift)? (Y/N)"
+	read download_package
+	if [[ ${download_package,,} != "n" ]]; then
+		echo "turning on night light"
+		gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true || echo "Failed to turn night light on"
+	fi
 fi
 
 # turns auto reporting off
 if [[ ${master_answer,,} = "no" ]]; then
-    echo "Would you like to turn off automatic reporting?(Y/N)"
-    read download_package
-    if [[ ${download_package,,} != "n" ]]; then
-	echo "disabling automatic reporting"
-sudo systemctl stop abrt-journal-core.service || { echo "Failed to turn off automatic reporting"; exit 1 }
-sudo systemctl disable abrt-journal-core.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+	echo "Would you like to turn off automatic reporting?(Y/N)"
+	read download_package
+	if [[ ${download_package,,} != "n" ]]; then
+		echo "disabling automatic reporting"
+		sudo systemctl stop abrt-journal-core.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+		sudo systemctl disable abrt-journal-core.service || { echo "Failed to turn off automatic reporting"; exit 1 }
 
-sudo systemctl stop abrt-oops.service || { echo "Failed to turn off automatic reporting"; exit 1 }
-sudo systemctl disable abrt-oops.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+		sudo systemctl stop abrt-oops.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+		sudo systemctl disable abrt-oops.service || { echo "Failed to turn off automatic reporting"; exit 1 }
 
-sudo systemctl stop abrt-xorg.service || { echo "Failed to turn off automatic reporting"; exit 1 }
-sudo systemctl disable abrt-xorg.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+		sudo systemctl stop abrt-xorg.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+		sudo systemctl disable abrt-xorg.service || { echo "Failed to turn off automatic reporting"; exit 1 }
 
-sudo systemctl stop abrtd.service || { echo "Failed to turn off automatic reporting"; exit 1 }
-sudo systemctl disable abrtd.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+		sudo systemctl stop abrtd.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+		sudo systemctl disable abrtd.service || { echo "Failed to turn off automatic reporting"; exit 1 }
+	fi
 echo "Automatic reporting disabled"
 fi
 
@@ -165,6 +169,8 @@ fi
 if [[ ${master_answer,,} = "no" ]]; then
     echo "Would you like to reboot to apply/view changes?(Y/N)"
     read download_package
-    if [[ ${download_package,,} != "n" ]]; then
+	if [[ ${download_package,,} != "n" ]]; then
 	echo "Rebooting"
+	fi
 reboot || echo "Failed to reboot"
+fi
