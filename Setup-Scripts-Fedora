@@ -129,6 +129,7 @@ echo "adding dock"
 gnome-extensions enable dash-to-dock@micxgx.gmail.com || echo "Failed to add dock"
 echo "Minimize and maximize buttons added"
 fi
+fi
 
 # turns night light on
 if [[ ${master_answer,,} = "no" ]]; then
