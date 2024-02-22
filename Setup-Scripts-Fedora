@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x  # Enables printing of all commands
 
 echo "Do you want to have everything run automatically? (Yes/No)"
 read master_answer
@@ -122,12 +123,12 @@ if [[ ${master_answer,,} = "no" ]]; then
     echo "Would you like to add the minimize/maximize buttons onto your winodws? (Y/N)"
     read download_package
     if [[ ${download_package,,} != "n" ]]; then
-	echo "Adding minimize, maximize, and close buttons"
-gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close' || echo "Failed to add minimize/maximize buttons"
-echo "adding dock"
-gnome-extensions enable dash-to-dock@micxgx.gmail.com || echo "Failed to add dock"
-echo "Minimize and maximize buttons added"
-fi
+        echo "Adding minimize, maximize, and close buttons"
+        gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close' || echo "Failed to add minimize/maximize buttons"
+        echo "adding dock"
+        gnome-extensions enable dash-to-dock@micxgx.gmail.com || echo "Failed to add dock"
+        echo "Minimize and maximize buttons added"
+    fi
 fi
 
 # turns night light on
