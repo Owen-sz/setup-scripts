@@ -108,6 +108,8 @@ if [[ ${master_answer,,} = "no" ]]; then
     read download_package
     if [[ ${download_package,,} != "n" ]]; then
         echo "Installing Multimedia Codecs"
+	fi 
+fi
 
 # Multimedia codecs
 echo "Installing multimedia codecs"
@@ -116,7 +118,6 @@ sudo dnf install -y lame\* --exclude=lame-devel || { echo "Failed to install a c
 echo "Upgrading multimedia codecs"
 sudo dnf group upgrade --with-optional Multimedia || echo "Failed to update codec(s)"
 echo "Multimedia Codecs successfully installed"
-fi
 
 # Adds minimize and maximize buttons
 if [[ ${master_answer,,} = "no" ]]; then
