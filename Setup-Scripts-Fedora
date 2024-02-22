@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x  # Enables printing of all commands
 
 echo "Do you want to have everything run automatically? (Yes/No)"
 read master_answer
