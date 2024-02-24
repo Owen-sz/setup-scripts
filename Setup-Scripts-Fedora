@@ -83,11 +83,10 @@ if [[ ${master_answer,,} = "no" ]]; then
 	read download_package
 	if [[ ${download_package,,} != "n" ]]; then
         	echo "Upgrading packages"
+		echo "Upgrading all packages"
+		sudo dnf upgrade -y || echo "Failed to update $package"
+		echo "All packages upgraded successfully"
 	fi
-		
-echo "Upgrading all packages"
-sudo dnf upgrade -y || echo "Failed to update $package"
-echo "All packages upgraded successfully"
 fi
 
 if [[ ${master_answer,,} = "no" ]]; then
