@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x  # Enables printing of all commands
+# set -x  # Enables printing of all commands
 
 echo "Do you want to have everything run automatically? (Yes/No)"
 read master_answer
@@ -125,13 +125,14 @@ echo "Multimedia Codecs successfully installed"
 if [[ ${master_answer,,} = "no" ]]; then
     echo "Would you like to add the minimize/maximize buttons onto your winodws? (Y/N)"
     read download_package
-    if [[ ${download_package,,} != "n" ]]; then
-        echo "Adding minimize, maximize, and close buttons"
-        gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close' || echo "Failed to add minimize/maximize buttons"
-        echo "adding dock"
-        gnome-extensions enable dash-to-dock@micxgx.gmail.com || echo "Failed to add dock"
-        echo "Minimize and maximize buttons added"
-    fi
+fi
+
+if [[ ${download_package,,} != "n" ]]; then
+    echo "Adding minimize, maximize, and close buttons"
+    gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close' || echo "Failed to add minimize/maximize buttons"
+    echo "adding dock"
+    gnome-extensions enable dash-to-dock@micxgx.gmail.com || echo "Failed to add dock"
+    echo "Minimize and maximize buttons added"
 fi
 
 # turns night light on
@@ -146,7 +147,7 @@ fi
 
 # turns auto reporting off
 if [[ ${master_answer,,} = "no" ]]; then
-	echo "Would you like to turn off automatic reporting?(Y/N)"
+	echo "Would you like to turn off automatic reporting? (Y/N)"
 	read download_package
 	if [[ ${download_package,,} != "n" ]]; then
 		echo "disabling automatic reporting"
@@ -162,15 +163,15 @@ if [[ ${master_answer,,} = "no" ]]; then
 		sudo systemctl stop abrtd.service || { echo "Failed to turn off automatic reporting"; exit 1; }
 		sudo systemctl disable abrtd.service || { echo "Failed to turn off automatic reporting"; exit 1; }
 	fi
-echo "Automatic reporting disabled"
+	echo "Automatic reporting disabled"
 fi
 
 # Reboots to set in changes
 if [[ ${master_answer,,} = "no" ]]; then
-    echo "Would you like to reboot to apply/view changes?(Y/N)"
+    echo "Would you like to reboot to apply/view changes? (Y/N)"
     read download_package
-	if [[ ${download_package,,} != "n" ]]; then
+    if [[ ${download_package,,} != "n" ]]; then
 	echo "Rebooting"
-	fi
-reboot || echo "Failed to reboot"
+	reboot || echo "Failed to reboot"
+    fi
 fi
