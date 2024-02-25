@@ -59,7 +59,7 @@ if [[ ${master_answer,,} = "no" ]]; then
 fi
 
 # List of packages
-packages=("dnf5" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "gnome-tweaks" "gnome-extensions-app" "nano" "discord" "git" "gimp" "thunderbird" "vlc")
+packages=("dnf5" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "gnome-tweaks" "gnome-extensions-app" "filezilla" "nano" "discord" "git" "gimp" "thunderbird" "vlc")
 
 # downloads all the packages
 for package in "${packages[@]}"
