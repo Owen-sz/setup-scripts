@@ -41,24 +41,6 @@ elif [[ ${master_answer,,} = "no" ]]; then
     fi
 fi
 
-# List of packages
-packages=("neofetch" "gnome-tweaks" "gnome-extensions-app" "gnome-shell-extension-dash-to-dock" "nano" "discord" "edge" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "git" "gimp" "thunderbird" "vlc" "vscode")
-
-# downloads all the packages
-for package in "${packages[@]}"
-do 
-    if [[ ${master_answer,,} = "no" ]]; then
-        echo "Do you want to download $package? (Y/N)"
-        read download_package
-        if [[ ${download_package,,} == "n" ]]; then
-            echo "Skipping $package"
-            continue
-        fi
-    fi
-    echo "Downloading $package..."
-    sudo dnf install -y $package || echo "Failed to download $package"
-done
-
 if [[ ${master_answer,,} = "no" ]]; then
     echo "Do you want to install the RPM Fusion Repository? (Y/N)"
     read download_package
@@ -76,6 +58,24 @@ if [[ ${master_answer,,} = "no" ]]; then
     fi
 fi
 
+# List of packages
+packages=("dnf5" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "gnome-tweaks" "gnome-extensions-app" "nano" "discord" "git" "gimp" "thunderbird" "vlc")
+
+# downloads all the packages
+for package in "${packages[@]}"
+do 
+    if [[ ${master_answer,,} = "no" ]]; then
+        echo "Do you want to download $package? (Y/N)"
+        read download_package
+        if [[ ${download_package,,} == "n" ]]; then
+            echo "Skipping $package"
+            continue
+        fi
+    fi
+    echo "Downloading $package..."
+    sudo dnf5 install -y $package || echo "Failed to download $package"
+done
+
 # upgrades packages. Opera needs packages updated before installing
 
 if [[ ${master_answer,,} = "no" ]]; then
@@ -84,7 +84,7 @@ if [[ ${master_answer,,} = "no" ]]; then
 	if [[ ${download_package,,} != "n" ]]; then
         	echo "Upgrading packages"
 		echo "Upgrading all packages"
-		sudo dnf upgrade -y || echo "Failed to update $package"
+		sudo dnf5 upgrade -y || echo "Failed to update $package"
 		echo "All packages upgraded successfully"
 	fi
 fi
@@ -95,11 +95,11 @@ if [[ ${master_answer,,} = "no" ]]; then
 	if [[ ${download_package,,} != "n" ]]; then
         	echo "Installing Opera"
 	
-		sudo dnf install -y dnf-plugins-core || echo "Failed to install dnf-plugins-core"
+		sudo dnf5 install -y dnf-plugins-core || echo "Failed to install dnf-plugins-core"
 		echo "configuring Opera"
-		sudo dnf config-manager --add-repo https://rpm.opera.com/rpm || echo "Failed to add Opera Repo"
+		sudo dnf5 config-manager --add-repo https://rpm.opera.com/rpm || echo "Failed to add Opera Repo"
 		sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub || echo "Failed to import Opera gpg-key"
-		sudo dnf install -y opera-stable || echo "Failed to download Opera"
+		sudo dnf5 install -y opera-stable || echo "Failed to download Opera"
 		echo "Opera successfully installed"
 	fi
 fi
@@ -111,10 +111,10 @@ if [[ ${master_answer,,} = "no" ]]; then
         	echo "Installing Multimedia Codecs"
 # Multimedia codecs
 	echo "Installing multimedia codecs"
-	sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel || echo "Failed to install a codec"
-	sudo dnf install -y lame\* --exclude=lame-devel || { echo "Failed to install a codec"; exit 1; }
+	sudo dnf5 install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel || echo "Failed to install a codec"
+	sudo dnf5 install -y lame\* --exclude=lame-devel || { echo "Failed to install a codec"; exit 1; }
 	echo "Upgrading multimedia codecs"
-	sudo dnf group upgrade --with-optional Multimedia || echo "Failed to update codec(s)"
+	sudo dnf5 group upgrade --with-optional Multimedia || echo "Failed to update codec(s)"
 	echo "Multimedia Codecs successfully installed"
 	fi 
 fi
@@ -131,6 +131,18 @@ if [[ ${download_package,,} != "n" ]]; then
     echo "adding dock"
     gnome-extensions enable dash-to-dock@micxgx.gmail.com || echo "Failed to add dock"
     echo "Minimize and maximize buttons added"
+fi
+
+# Adds doc on GNOME
+if [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you like to add a dock (GNOME only)? (Y/N)"
+    read download_package
+fi
+
+if [[ ${download_package,,} != "n" ]]; then
+    echo "Adding dock"
+    sudo dnf5 install -y gnome-shell-extension-dash-to-dock
+    echo "adding dock"
 fi
 
 # turns night light on
