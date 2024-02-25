@@ -95,10 +95,10 @@ if [[ ${master_answer,,} = "no" ]]; then
 	if [[ ${download_package,,} != "n" ]]; then
         	echo "Installing Opera"
 	
-		sudo dnf install -y dnf-plugins-core || { echo "Failed to install dnf-plugins-core"; exit 1; }
+		sudo dnf install -y dnf-plugins-core || echo "Failed to install dnf-plugins-core"
 		echo "configuring Opera"
-		sudo dnf config-manager --add-repo https://rpm.opera.com/rpm || { echo "Failed to add Opera Repo"; exit 1; }
-		sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub || { echo "Failed to import Opera gpg-key"; exit 1; }
+		sudo dnf config-manager --add-repo https://rpm.opera.com/rpm || echo "Failed to add Opera Repo"
+		sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub || echo "Failed to import Opera gpg-key"
 		sudo dnf install -y opera-stable || echo "Failed to download Opera"
 		echo "Opera successfully installed"
 	fi
