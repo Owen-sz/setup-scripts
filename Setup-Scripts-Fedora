@@ -109,20 +109,19 @@ if [[ ${master_answer,,} = "no" ]]; then
 	read download_package
 	if [[ ${download_package,,} != "n" ]]; then
         	echo "Installing Multimedia Codecs"
+# Multimedia codecs
+	echo "Installing multimedia codecs"
+	sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel || echo "Failed to install a codec"
+	sudo dnf install -y lame\* --exclude=lame-devel || { echo "Failed to install a codec"; exit 1; }
+	echo "Upgrading multimedia codecs"
+	sudo dnf group upgrade --with-optional Multimedia || echo "Failed to update codec(s)"
+	echo "Multimedia Codecs successfully installed"
 	fi 
 fi
 
-# Multimedia codecs
-echo "Installing multimedia codecs"
-sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel || echo "Failed to install a codec"
-sudo dnf install -y lame\* --exclude=lame-devel || { echo "Failed to install a codec"; exit 1; }
-echo "Upgrading multimedia codecs"
-sudo dnf group upgrade --with-optional Multimedia || echo "Failed to update codec(s)"
-echo "Multimedia Codecs successfully installed"
-
 # Adds minimize and maximize buttons
 if [[ ${master_answer,,} = "no" ]]; then
-    echo "Would you like to add the minimize/maximize buttons onto your winodws? (Y/N)"
+    echo "Would you like to add the minimize/maximize buttons onto your winodws (GNOME only)? (Y/N)"
     read download_package
 fi
 
@@ -136,7 +135,7 @@ fi
 
 # turns night light on
 if [[ ${master_answer,,} = "no" ]]; then
-	echo "Would you like to turn on night light (night shift)? (Y/N)"
+	echo "Would you like to turn on night light (night shift) (GNOME only)? (Y/N)"
 	read download_package
 	if [[ ${download_package,,} != "n" ]]; then
 		echo "turning on night light"
