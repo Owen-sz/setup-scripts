@@ -73,7 +73,7 @@ do
         fi
     fi
     echo "Downloading $package..."
-    sudo dnf5 install -y $package || echo "Failed to download $package"
+    sudo dnf install -y $package || echo "Failed to download $package"
 done
 
 # upgrades packages. Opera needs packages updated before installing
@@ -84,7 +84,7 @@ if [[ ${master_answer,,} = "no" ]]; then
 	if [[ ${download_package,,} != "n" ]]; then
         	echo "Upgrading packages"
 		echo "Upgrading all packages"
-		sudo dnf5 upgrade -y || echo "Failed to update $package"
+		sudo dnf upgrade -y || echo "Failed to update $package"
 		echo "All packages upgraded successfully"
 	fi
 fi
@@ -95,11 +95,11 @@ if [[ ${master_answer,,} = "no" ]]; then
 	if [[ ${download_package,,} != "n" ]]; then
         	echo "Installing Opera"
 	
-		sudo dnf5 install -y dnf-plugins-core || echo "Failed to install dnf-plugins-core"
+		sudo dnf install -y dnf-plugins-core || echo "Failed to install dnf-plugins-core"
 		echo "configuring Opera"
-		sudo dnf5 config-manager --add-repo https://rpm.opera.com/rpm || echo "Failed to add Opera Repo"
+		sudo dnf config-manager --add-repo https://rpm.opera.com/rpm || echo "Failed to add Opera Repo"
 		sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub || echo "Failed to import Opera gpg-key"
-		sudo dnf5 install -y opera-stable || echo "Failed to download Opera"
+		sudo dnf install -y opera-stable || echo "Failed to download Opera"
 		echo "Opera successfully installed"
 	fi
 fi
@@ -111,10 +111,10 @@ if [[ ${master_answer,,} = "no" ]]; then
         	echo "Installing Multimedia Codecs"
 # Multimedia codecs
 	echo "Installing multimedia codecs"
-	sudo dnf5 install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel || echo "Failed to install a codec"
-	sudo dnf5 install -y lame\* --exclude=lame-devel || { echo "Failed to install a codec"; exit 1; }
+	sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel || echo "Failed to install a codec"
+	sudo dnf install -y lame\* --exclude=lame-devel || { echo "Failed to install a codec"; exit 1; }
 	echo "Upgrading multimedia codecs"
-	sudo dnf5 group upgrade --with-optional Multimedia || echo "Failed to update codec(s)"
+	sudo dnf group upgrade --with-optional Multimedia || echo "Failed to update codec(s)"
 	echo "Multimedia Codecs successfully installed"
 	fi 
 fi
@@ -141,7 +141,7 @@ fi
 
 if [[ ${download_package,,} != "n" ]]; then
     echo "Adding dock"
-    sudo dnf5 install -y gnome-shell-extension-dash-to-dock
+    sudo dnf install -y gnome-shell-extension-dash-to-dock
     echo "adding dock"
 fi
 
