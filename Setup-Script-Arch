@@ -105,7 +105,7 @@ elif [[ ${master_answer,,} = "no" ]]; then
     fi
 fi
 
-$ Downloading Microcode
+# Downloading Microcode
 
 # List of packages
 packages=("gparted" "libreoffice-fresh" "filezilla" " vim" "nvim" "nano" "discord" "gimp" "thunderbird" "vlc" "yay")
