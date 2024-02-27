@@ -1,0 +1,210 @@
+#!/bin/bash
+# set -x  # Enables printing of all commands
+
+echo "Do you want to have everything run automatically? (Yes/No)"
+read master_answer
+
+# Updates packages
+
+echo "Updating packages - required"
+sudo pacman -Syu -y
+echo "All packages updated sucessfully"
+
+# Downloads required packages
+echo "downloading neccesary packages"
+# git
+sudo pacman -S -y git
+# yay
+sudo pacman -Syu --needed base-devel git
+git clone https://aur.archlinux.org/yay.git
+cd yay
+gpg --recv-key EBE41E90F6F12F6D
+makepkg -si
+cd ..
+# snapd
+git clone https://aur.archlinux.org/snapd.git
+cd snapd
+makepkg -si
+sudo systemctl enable --now snapd.socket
+sudo ln -s /var/lib/snapd/snap /snap
+
+# Change hostname
+echo "Before we begin, do you want to change your hostname? (Y/N)"
+read download_package
+if [[ ${download_package,,} == "y" ]]; then
+    echo "Please enter your desired hostname:"
+    read desired_hostname
+    echo "Changing hostname to $desired_hostname"
+    sudo hostnamectl set-hostname "$desired_hostname" || echo "Failed to change hostname"
+fi
+
+if [[ ${master_answer,,} = "yes" ]]; then
+    auto_confirm=true
+    echo "starting automatic setup"
+elif [[ ${master_answer,,} = "no" ]]; then
+    echo "starting manual setup" ||
+    auto_confirm=false
+fi
+
+# making user directories
+if [[ ${master_answer,,} = "yes" ]]; then
+    echo "Making user directories"
+    sudo pacman -S -y xdg-user-dirs
+	xdg-user-dirs-update
+elif [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you like to add user directories? (Y/N)"
+    read download_answer
+    if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
+      echo "Making user directories"
+      sudo pacman -S -y xdg-user-dirs
+	  xdg-user-dirs-update
+    elif [[ ${download_answer,,} = "n" ]]; then
+        echo "Skipping user directories"
+    else
+        echo "Invalid input. Please enter a valid input"
+    fi
+fi
+
+# edits pacman config file for parallel downloads
+if [[ ${master_answer,,} = "yes" ]]; then
+    echo "Configuring pacman parallel downloads"
+	# Back up OG file
+    sudo cp /etc/pacman.conf /etc/pacman.conf.bak || { echo "Failed to copy pacman .conf file"; exit 1; }
+	# Uncomment Parallel Downloads line
+    sudo sed -i '/ParallelDownloads/c\ParallelDownloads=5' /etc/pacman.conf || echo "Failed to eonfigure pacman parallel downloads"
+elif [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you like to configure pacman parallel downloads? (Y/N)"
+    read download_answer
+    if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
+        echo "Configuring pacman parallel downloads"
+      sudo cp /etc/pacman.conf /etc/pacman.conf.bak || { echo "Failed to copy pacman .conf file"; exit 1; }
+	# Uncomment Parallel Downloads line
+    sudo sed -i '/ParallelDownloads/c\ParallelDownloads=5' /etc/pacman.conf || echo "Failed to eonfigure pacman parallel downloads"
+    elif [[ ${download_answer,,} = "n" ]]; then
+        echo "Download cancelled"
+    else
+        echo "Invalid input. Please enter a valid input"
+    fi
+fi
+
+# Downloading essential packages
+if [[ ${master_answer,,} = "yes" ]]; then
+    echo "Downloading essential packages"
+    sudo pacman -S -y enchant mythes-en ttf-liberation hunspell-en_US ttf-bitstream-vera pkgstats adobe-source-sans-pro-fonts gst-plugins-good ttf-droid ttf-dejavu aspell-en icedtea-web gst-libav ttf-ubuntu-font-family ttf-anonymous-pro jre8-openjdk languagetool libmythes 
+	echo "Essential packages downloaded sucessfully"
+elif [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you like to download essential packages? (Y/N)"
+    read download_answer
+    if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
+    echo "Downloading essential packages"
+	sudo pacman -S enchant mythes-en ttf-liberation hunspell-en_US ttf-bitstream-vera pkgstats adobe-source-sans-pro-fonts gst-plugins-good ttf-droid ttf-dejavu aspell-en icedtea-web gst-libav ttf-ubuntu-font-family ttf-anonymous-pro jre8-openjdk languagetool libmythes 
+    elif [[ ${download_answer,,} = "n" ]]; then
+        echo "Skipping essential packages"
+    else
+        echo "Invalid input. Please enter a valid input"
+    fi
+fi
+
+$ Downloading Microcode
+
+# List of packages
+packages=("gparted" "libreoffice-fresh" "filezilla" " vim" "nvim" "nano" "discord" "gimp" "thunderbird" "vlc" "yay")
+
+# downloads all the packages
+for package in "${packages[@]}"
+do 
+    if [[ ${master_answer,,} = "no" ]]; then
+        echo "Do you want to download $package? (Y/N)"
+        read download_package
+        if [[ ${download_package,,} == "n" ]]; then
+            echo "Skipping $package"
+            continue
+        fi
+    fi
+    echo "Downloading $package..."
+    sudo pacman -S -y $package || echo "Failed to download $package"
+done
+
+# List of available browsers
+browsers=("Firefox" "chromium" "Tor Browser" "Vivaldi" "Haskell" "Librewolf" "Opera")
+
+echo "Available browsers:"
+for ((i = 0; i < ${#browsers[@]}; i++)); do
+    echo "$((i + 1)). ${browsers[i]}"
+done
+
+# Prompt user for selection
+echo "Enter which browsers you would like to install, for example, '1 3 4 6'"
+read -p "1 2 3 4 5 6 7" selected_indices
+
+# Download selected browsers
+for index in $selected_indices; do
+    browser="${browsers[index - 1]}"
+    case "$browser" in
+        "Firefox")   # Download Firefox
+            sudo pacman -S -y firefox
+            echo "Downloading Firefox..."
+            ;;
+        "Chromium")   # Download Chromium
+            sudo pacman -S -y chromium
+            echo "Downloading Chromium..."
+            ;;
+		"Tor Browser")   # Download Tor Browser
+            sudo pacman -S -y torbrowser-launcher
+            echo "Downloading Tor Browser..."
+            ;;
+		"Vivaldi")   # Download Tor Vivaldi
+            sudo pacman -S -y vivaldi
+            echo "Downloading Vivaldi..."
+            ;;
+		"Haskell")   # Download Haskell
+            sudo pacman -S -y haskell-open-browser
+            echo "Downloading Haskell..."
+            ;;
+		"Librewolf")   # Download Librewolf
+            git clone https://gitlab.com/librewolf-community/browser/arch.git
+			echo "Downloading librewolf..."
+			cd arch/
+			gpg --recv-key EBE41E90F6F12F6D
+			makepkg -si
+			cd ..
+            ;;
+		"Opera")   # Download Opera
+            sudo pacman -S -y opera
+            echo "Downloading Opera..."
+            ;;
+        *)
+            echo "Invalid selection: $browser"
+            ;;
+		
+    esac
+done
+
+echo "Finished!"
+
+if [[ ${master_answer,,} = "no" ]]; then
+	echo "Do you want to install Multimedia Codecs? (Y/N)"
+	read download_package
+	if [[ ${download_package,,} != "n" ]]; then
+        	echo "Installing Multimedia Codecs"
+# Multimedia codecs
+	echo "Installing multimedia codecs"
+	sudo pacman -S -y a52dec faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins || echo "Failed to install a codec"
+	echo "Multimedia Codecs successfully installed"
+	fi 
+fi
+
+echo "Updating packages"
+sudo pacman -Syu -y
+
+# Reboots to set in changes
+if [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you like to reboot to apply/view changes? (Y/N)"
+    read download_package
+    if [[ ${download_package,,} != "n" ]]; then
+	echo "Rebooting"
+	reboot || echo "Failed to reboot"
+    fi
+fi
+
+chmod +x "$0"
