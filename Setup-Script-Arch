@@ -4,30 +4,6 @@
 echo "Do you want to have everything run automatically? (Yes/No)"
 read master_answer
 
-# Updates packages
-
-echo "Updating packages - required"
-sudo pacman -Syu -y
-echo "All packages updated sucessfully"
-
-# Downloads required packages
-echo "downloading neccesary packages"
-# git
-sudo pacman -S -y git
-# yay
-sudo pacman -Syu --needed base-devel git
-git clone https://aur.archlinux.org/yay.git
-cd yay
-gpg --recv-key EBE41E90F6F12F6D
-makepkg -si
-cd ..
-# snapd
-git clone https://aur.archlinux.org/snapd.git
-cd snapd
-makepkg -si
-sudo systemctl enable --now snapd.socket
-sudo ln -s /var/lib/snapd/snap /snap
-
 # Change hostname
 echo "Before we begin, do you want to change your hostname? (Y/N)"
 read download_package
@@ -38,6 +14,94 @@ if [[ ${download_package,,} == "y" ]]; then
     sudo hostnamectl set-hostname "$desired_hostname" || echo "Failed to change hostname"
 fi
 
+# List of available browsers
+browsers=("Firefox" "chromium" "Tor Browser" "Vivaldi" "Haskell" "Librewolf" "Opera" "SKIP")
+
+echo "Available browsers:"
+for ((i = 0; i < ${#browsers[@]}; i++)); do
+    echo "$((i + 1)). ${browsers[i]}"
+done
+
+# Prompt user for selection
+echo "What browser(s) would you like to install? For example, '1 3 4 6'"
+read -p "1 2 3 4 5 6 7 8" selected_indices
+
+# Download selected browsers
+for index in $selected_indices; do
+    browser="${browsers[index - 1]}"
+    case "$browser" in
+        "Firefox")   # Download Firefox
+            echo "Downloading Firefox..."
+            sudo pacman -S -y firefox || echo "Failed to download Firefox"
+            ;;
+        "Chromium")   # Download Chromium
+            echo "Downloading Chromium..."
+            sudo pacman -S -y chromium || echo "Failed to download Chromium"
+            ;;
+		"Tor Browser")   # Download Tor Browser
+            echo "Downloading Tor Browser..."
+            sudo pacman -S -y torbrowser-launcher || echo "Failed to download Tor Browser"
+            ;;
+		"Vivaldi")   # Download Vivaldi
+            echo "Downloading Vivaldi..."
+            sudo pacman -S -y vivaldi || echo "Failed to download Vivaldi"
+            ;;
+		"Haskell")   # Download Haskell
+			echo "Downloading Haskell..."
+            sudo pacman -S -y haskell-open-browser || echo "Failed to download Haskell"
+            ;;
+		"Librewolf")   # Download Librewolf
+			echo "Downloading librewolf..."
+            git clone https://gitlab.com/librewolf-community/browser/arch.git || echo "Failed to download Librewolf"
+			cd arch/
+			gpg --recv-key EBE41E90F6F12F6D
+			makepkg -si
+			cd ..
+            ;;
+		"Opera")   # Download Opera
+            echo "Downloading Opera..."
+            sudo pacman -S -y opera || echo "Failed to download Opera"
+            ;;
+		"SKIP")   # Skip
+            echo "Skipping browser installation..."
+            ;;
+        *)
+            echo "Invalid selection: $browser"
+            ;;
+		
+    esac
+done
+
+echo "Finished!"
+
+# Updates packages
+
+echo "Updating packages - required"
+sudo pacman -Syu -y
+echo "All packages updated sucessfully"
+
+# Downloads required packages
+echo "downloading neccesary packages - required"
+# git
+echo "Downloading git"
+sudo pacman -S -y git
+# yay
+echo "Downloading yay"
+sudo pacman -Syu --needed base-devel git
+git clone https://aur.archlinux.org/yay.git
+cd yay
+gpg --recv-key EBE41E90F6F12F6D
+makepkg -si
+cd ..
+# snapd
+echo "Downloading snapd"
+git clone https://aur.archlinux.org/snapd.git
+cd snapd
+makepkg -si
+sudo systemctl enable --now snapd.socket
+sudo ln -s /var/lib/snapd/snap /snap
+
+# Creating master_answer function data
 if [[ ${master_answer,,} = "yes" ]]; then
     auto_confirm=true
     echo "starting automatic setup"
@@ -104,125 +168,133 @@ elif [[ ${master_answer,,} = "no" ]]; then
         echo "Invalid input. Please enter a valid input"
     fi
 fi
+# Microcode install
+# Function to detect CPU brand
+if [[ ${master_answer,,} = "yes" ]]; then
+get_cpu_brand() {
+    local vendor
+    vendor=$(lscpu | grep "Vendor ID" | awk '{print $3}')
+    echo "$vendor"
+}
+# Install microcode based on brand
+case "$cpu_brand" in
+    "GenuineIntel")
+        sudo pacman -S -y intel-ucode
+        echo "Downloading Intel Microcode..."
+        ;;
+    "AuthenticAMD")
+        sudo pacman -S -y amd-ucode
+        echo "Downloading AMD Microcode..."
+        ;;
+    *)
+        echo "Unknown CPU brand. Skipping microcode installation."
+        ;;
+esac
+fi
 
+if [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you like to download CPU Microcode? (Y/N)"
+    read download_answer
+    if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
 # Downloading Microcode
-
 echo "CPU brand:"
-for ((i = 0; i < ${#browsers[@]}; i++)); do
-    echo "$((i + 1)). ${browsers[i]}"
-done
+echo "1. Intel"
+echo "2. AMD"
+echo "3. SKIP"
+read -p "Enter the number corresponding to your CPU manufacturer: " selected_index
 
-# Prompt user for selection
-echo "Enter the number which corresponds to your CPU manufactorer (3 to skip):"
-read -p "1 2 3" selected_indices
+case "$selected_index" in
+    1)
+        brand="Intel"
+        sudo pacman -S -y intel-ucode
+        echo "Downloading Intel Microcode..."
+        ;;
+    2)
+        brand="AMD"
+        sudo pacman -S -y amd-ucode
+        echo "Downloading AMD Microcode..."
+        ;;
+    3)
+        brand="SKIP"
+        echo "Skipping Microcode installation."
+        ;;
+    *)
+        echo "Invalid selection"
+        ;;
+esac
 
-# Installs microcode
-for index in $selected_indices; do
-    brand="${brand[index - 1]}"
-    case "$brand" in
-        "Intel")   # Download Intel Microcode
-            sudo pacman -S -y intel-ucode
-            echo "Downloading Intel Microcode..."
-            ;;
-		"AMD")   # Download AMD Microcode
-            sudo pacman -S -y amd-ucode
-            echo "Downloading AMD Microcode..."
-            ;;
-		"Skip")   # Skip
-            echo "Skipping Microcode..."
-            ;;
-			
+echo "Detected CPU brand: $brand"
+	fi
+elif [[ ${download_answer,,} = "n" ]]; then
+        echo "Skipping Micrcode"
+    else
+        echo "Invalid input. Please enter a valid input"
+fi
+
 # Disable GRUB delay
-echo "Would you liketo disable 5 second GRUB menu on boot (can be reaccesed by holding 'esc' during boot)?"
+
+if [[ ${master_answer,,} = "yes" ]]; then
+echo "Lowering GRUB boot menu time"
 sudo sed -i 's/GRUB_TIMEOUT=[0-9]\+/GRUB_TIMEOUT=-1/' /etc/default/grub
 sudo update-grub
-
+fi
+if [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you liketo disable 5 second GRUB menu on boot (can be reaccesed by holding 'esc' during boot)?"
+    read download_answer
+    if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
+echo "Lowering GRUB boot menu time"
+sudo sed -i 's/GRUB_TIMEOUT=[0-9]\+/GRUB_TIMEOUT=-1/' /etc/default/grub
+sudo update-grub
+	fi
+	elif [[ ${download_answer,,} = "n" ]]; then
+        echo "Skipping GRUB boot menu time Configuring"
+    else
+        echo "Invalid input. Please enter a valid input"
+fi
+ 
+ 
 # List of packages
 packages=("gparted" "libreoffice-fresh" "filezilla" "pulseaudio" "vim" "nvim" "nano" "discord" "gimp" "thunderbird" "vlc" "yay")
 
 # downloads all the packages
-for package in "${packages[@]}"
-do 
+for package in "${packages[@]}"; do
     if [[ ${master_answer,,} = "no" ]]; then
         echo "Do you want to download $package? (Y/N)"
-        read download_package
-        if [[ ${download_package,,} == "n" ]]; then
-            echo "Skipping $package"
-            continue
+        read download_answer
+        if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
+            echo "Downloading $package..."
+            sudo pacman -S -y $package || echo "Failed to download $package"
         fi
+    elif [[ ${master_answer,,} = "yes" ]]; then
+        echo "Downloading $package..."
+        sudo pacman -S -y $package || echo "Failed to download $package"
+    elif [[ ${download_answer,,} == "n" ]]; then
+        echo "Skipping $package"
+        continue
+    else
+        echo "Invalid input. Please enter a valid input."
     fi
-    echo "Downloading $package..."
-    sudo pacman -S -y $package || echo "Failed to download $package"
 done
 
-# List of available browsers
-browsers=("Firefox" "chromium" "Tor Browser" "Vivaldi" "Haskell" "Librewolf" "Opera")
-
-echo "Available browsers:"
-for ((i = 0; i < ${#browsers[@]}; i++)); do
-    echo "$((i + 1)). ${browsers[i]}"
-done
-
-# Prompt user for selection
-echo "Enter which browsers you would like to install, for example, '1 3 4 6'"
-read -p "1 2 3 4 5 6 7" selected_indices
-
-# Download selected browsers
-for index in $selected_indices; do
-    browser="${browsers[index - 1]}"
-    case "$browser" in
-        "Firefox")   # Download Firefox
-            sudo pacman -S -y firefox
-            echo "Downloading Firefox..."
-            ;;
-        "Chromium")   # Download Chromium
-            sudo pacman -S -y chromium
-            echo "Downloading Chromium..."
-            ;;
-		"Tor Browser")   # Download Tor Browser
-            sudo pacman -S -y torbrowser-launcher
-            echo "Downloading Tor Browser..."
-            ;;
-		"Vivaldi")   # Download Tor Vivaldi
-            sudo pacman -S -y vivaldi
-            echo "Downloading Vivaldi..."
-            ;;
-		"Haskell")   # Download Haskell
-            sudo pacman -S -y haskell-open-browser
-            echo "Downloading Haskell..."
-            ;;
-		"Librewolf")   # Download Librewolf
-            git clone https://gitlab.com/librewolf-community/browser/arch.git
-			echo "Downloading librewolf..."
-			cd arch/
-			gpg --recv-key EBE41E90F6F12F6D
-			makepkg -si
-			cd ..
-            ;;
-		"Opera")   # Download Opera
-            sudo pacman -S -y opera
-            echo "Downloading Opera..."
-            ;;
-        *)
-            echo "Invalid selection: $browser"
-            ;;
-		
-    esac
-done
-
-echo "Finished!"
+# Multimedia codecs
 
 if [[ ${master_answer,,} = "no" ]]; then
-	echo "Do you want to install Multimedia Codecs? (Y/N)"
-	read download_package
-	if [[ ${download_package,,} != "n" ]]; then
-        	echo "Installing Multimedia Codecs"
-# Multimedia codecs
-	echo "Installing multimedia codecs"
-	sudo pacman -S -y a52dec faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins || echo "Failed to install a codec"
-	echo "Multimedia Codecs successfully installed"
-	fi 
+    echo "Do you want to install Multimedia Codecs? (Y/N)"
+    read download_package
+    if [[ ${download_package,,} != "n" ]]; then
+        echo "Installing Multimedia Codecs"
+        sudo pacman -S -y a52dec faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins || echo "Failed to install a codec"
+    fi
+    echo "Multimedia Codecs successfully installed"
 fi
+
+if [[ ${master_answer,,} = "yes" ]]; then
+    echo "Installing multimedia codecs"
+    sudo pacman -S -y a52dec faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins || echo "Failed to install a codec"
+    echo "Multimedia Codecs successfully installed"
+fi
+
+# Updates packages
 
 echo "Updating packages"
 sudo pacman -Syu -y
@@ -231,10 +303,18 @@ sudo pacman -Syu -y
 if [[ ${master_answer,,} = "no" ]]; then
     echo "Would you like to reboot to apply/view changes? (Y/N)"
     read download_package
-    if [[ ${download_package,,} != "n" ]]; then
+    if [[ ${download_package,,} = "y" || $download_answer = "" ]]; then
 	echo "Rebooting"
 	reboot || echo "Failed to reboot"
     fi
+fi
+if [[ ${download_package,,} = "y" ]];
+echo "Setup is complete! It is reccomended you restart soon to see all changes"
+fi
+
+if [[ ${master_answer,,} = "yes" ]]; then
+echo "Rebooting"
+	reboot || echo "Failed to reboot"
 fi
 
 chmod +x "$0"
