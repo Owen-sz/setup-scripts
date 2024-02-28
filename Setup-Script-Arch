@@ -15,7 +15,7 @@ if [[ ${download_package,,} == "y" ]]; then
 fi
 
 # List of available browsers
-browsers=("Firefox" "chromium" "Tor Browser" "Vivaldi" "Haskell" "Librewolf" "Opera" "SKIP")
+browsers=("Firefox" "Chromium" "Tor Browser" "Vivaldi" "Haskell" "Librewolf" "Opera" "SKIP")
 
 echo "Available browsers:"
 for ((i = 0; i < ${#browsers[@]}; i++)); do
@@ -23,32 +23,34 @@ for ((i = 0; i < ${#browsers[@]}; i++)); do
 done
 
 # Prompt user for selection
-echo "What browser(s) would you like to install? For example, '1 3 4 6'"
-read -p "1 2 3 4 5 6 7 8" selected_indices
+read -p "Enter the number(s) corresponding to your choice(s), separated by spaces (for example, '1 3 4 6'): " selected_indices
+
+# Convert selected_indices to an array of integers
+selected_indices=($selected_indices)
 
 # Download selected browsers
-for index in $selected_indices; do
+for index in ${selected_indices[@]}; do
     browser="${browsers[index - 1]}"
     case "$browser" in
         "Firefox")   # Download Firefox
             echo "Downloading Firefox..."
-            sudo pacman -S -y firefox || echo "Failed to download Firefox"
+            sudo pacman -S --noconfirm firefox || echo "Failed to download Firefox"
             ;;
         "Chromium")   # Download Chromium
             echo "Downloading Chromium..."
-            sudo pacman -S -y chromium || echo "Failed to download Chromium"
+            sudo pacman -S --noconfirm chromium || echo "Failed to download Chromium"
             ;;
 		"Tor Browser")   # Download Tor Browser
             echo "Downloading Tor Browser..."
-            sudo pacman -S -y torbrowser-launcher || echo "Failed to download Tor Browser"
+            sudo pacman -S --noconfirm torbrowser-launcher || echo "Failed to download Tor Browser"
             ;;
 		"Vivaldi")   # Download Vivaldi
             echo "Downloading Vivaldi..."
-            sudo pacman -S -y vivaldi || echo "Failed to download Vivaldi"
+            sudo pacman -S --noconfirm vivaldi || echo "Failed to download Vivaldi"
             ;;
 		"Haskell")   # Download Haskell
 			echo "Downloading Haskell..."
-            sudo pacman -S -y haskell-open-browser || echo "Failed to download Haskell"
+            sudo pacman -S --noconfirm haskell-open-browser || echo "Failed to download Haskell"
             ;;
 		"Librewolf")   # Download Librewolf
 			echo "Downloading librewolf..."
@@ -60,7 +62,7 @@ for index in $selected_indices; do
             ;;
 		"Opera")   # Download Opera
             echo "Downloading Opera..."
-            sudo pacman -S -y opera || echo "Failed to download Opera"
+            sudo pacman -S --noconfirm opera || echo "Failed to download Opera"
             ;;
 		"SKIP")   # Skip
             echo "Skipping browser installation..."
@@ -68,9 +70,11 @@ for index in $selected_indices; do
         *)
             echo "Invalid selection: $browser"
             ;;
-		
     esac
 done
+
+echo "Finished!"
+
 
 echo "Finished!"
 
