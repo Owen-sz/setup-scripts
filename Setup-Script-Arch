@@ -34,23 +34,23 @@ for index in ${selected_indices[@]}; do
     case "$browser" in
         "Firefox")   # Download Firefox
             echo "Downloading Firefox..."
-            sudo pacman -S --noconfirm firefox || echo "Failed to download Firefox"
+            sudo pacman -S -y firefox || echo "Failed to download Firefox"
             ;;
         "Chromium")   # Download Chromium
             echo "Downloading Chromium..."
-            sudo pacman -S --noconfirm chromium || echo "Failed to download Chromium"
+            sudo pacman -S -y chromium || echo "Failed to download Chromium"
             ;;
 		"Tor Browser")   # Download Tor Browser
             echo "Downloading Tor Browser..."
-            sudo pacman -S --noconfirm torbrowser-launcher || echo "Failed to download Tor Browser"
+            sudo pacman -S -y torbrowser-launcher || echo "Failed to download Tor Browser"
             ;;
 		"Vivaldi")   # Download Vivaldi
             echo "Downloading Vivaldi..."
-            sudo pacman -S --noconfirm vivaldi || echo "Failed to download Vivaldi"
+            sudo pacman -S -y vivaldi || echo "Failed to download Vivaldi"
             ;;
 		"Haskell")   # Download Haskell
 			echo "Downloading Haskell..."
-            sudo pacman -S --noconfirm haskell-open-browser || echo "Failed to download Haskell"
+            sudo pacman -S -y haskell-open-browser || echo "Failed to download Haskell"
             ;;
 		"Librewolf")   # Download Librewolf
 			echo "Downloading librewolf..."
@@ -72,9 +72,6 @@ for index in ${selected_indices[@]}; do
             ;;
     esac
 done
-
-echo "Finished!"
-
 
 echo "Finished!"
 
