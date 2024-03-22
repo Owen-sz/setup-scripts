@@ -155,14 +155,14 @@ fi
 # Downloading essential packages
 if [[ ${master_answer,,} = "yes" ]]; then
     echo "Downloading essential packages"
-    sudo pacman -S -y enchant mythes-en ttf-liberation hunspell-en_US ttf-bitstream-vera pkgstats adobe-source-sans-pro-fonts gst-plugins-good ttf-droid ttf-dejavu aspell-en icedtea-web gst-libav ttf-ubuntu-font-family ttf-anonymous-pro jre8-openjdk languagetool libmythes 
+    sudo pacman -S -y enchant mythes-en ttf-liberation hunspell-en_US ttf-bitstream-vera pkgstats adobe-source-sans-pro-fonts gst-plugins-good ttf-droid ttf-dejavu aspell-en icedtea-web gst-libav ttf-ubuntu-font-family ttf-anonymous-pro jre8-openjdk languagetool libmythes pip
 	echo "Essential packages downloaded sucessfully"
 elif [[ ${master_answer,,} = "no" ]]; then
     echo "Would you like to download essential packages? (Y/N)"
     read download_answer
     if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
     echo "Downloading essential packages"
-	sudo pacman -S enchant mythes-en ttf-liberation hunspell-en_US ttf-bitstream-vera pkgstats adobe-source-sans-pro-fonts gst-plugins-good ttf-droid ttf-dejavu aspell-en icedtea-web gst-libav ttf-ubuntu-font-family ttf-anonymous-pro jre8-openjdk languagetool libmythes 
+	sudo pacman -S enchant mythes-en ttf-liberation hunspell-en_US ttf-bitstream-vera pkgstats adobe-source-sans-pro-fonts gst-plugins-good ttf-droid ttf-dejavu aspell-en icedtea-web gst-libav ttf-ubuntu-font-family ttf-anonymous-pro jre8-openjdk languagetool libmythes pip
     elif [[ ${download_answer,,} = "n" ]]; then
         echo "Skipping essential packages"
     else

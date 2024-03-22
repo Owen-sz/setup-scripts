@@ -103,7 +103,7 @@ if [[ ${master_answer,,} = "no" ]]; then
 		sudo dnf install -y dnf-plugins-core || echo "Failed to install dnf-plugins-core"
 		echo "configuring Opera"
 		sudo dnf config-manager --add-repo https://rpm.opera.com/rpm || echo "Failed to add Opera Repo"
-		sudo rpm --import https://rpm.opera.com/rpm/opera-gpg-key.pub || echo "Failed to import Opera gpg-key"
+		sudo rpm --import https://rpm.opera.com/rpmrepo.key || echo "Failed to import Opera gpg-key"
 		sudo dnf install -y opera-stable || echo "Failed to download Opera"
 		echo "Opera successfully installed"
 	fi
