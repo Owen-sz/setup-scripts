@@ -79,7 +79,7 @@ if [[ $package = "code" ]]; then
 fi
     echo "Downloading $package..."
     sudo dnf install -y $package || echo "Failed to download $package"
-done
+fi
 
 # upgrades packages. Opera needs packages updated before installing
 
