@@ -59,7 +59,7 @@ if [[ ${master_answer,,} = "no" ]]; then
 fi
 
 # List of packages
-packages=("dnf5" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "gnome-tweaks" "gnome-extensions-app" "gparted" "filezilla" "nano" "discord" "git" "gimp" "thunderbird" "vlc")
+packages=("dnf5" "pip" "--repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' --setopt='terra.gpgkey=https://repos.fyralabs.com/terra$releasever/key.asc' terra-release" "gnome-tweaks" "gnome-extensions-app" "gparted" "filezilla" "nano" "discord" "git" "gimp" "thunderbird" "code" "vlc")
 
 # downloads all the packages
 for package in "${packages[@]}"
@@ -72,6 +72,11 @@ do
             continue
         fi
     fi
+if [[ $package = "code" ]]; then
+    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+    sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+    sudo dnf install code
+fi
     echo "Downloading $package..."
     sudo dnf install -y $package || echo "Failed to download $package"
 done
