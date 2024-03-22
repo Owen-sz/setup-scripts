@@ -126,7 +126,7 @@ fi
 
 # Adds minimize and maximize buttons
 if [[ ${master_answer,,} = "no" ]]; then
-    echo "Would you like to add the minimize/maximize buttons onto your winodws (GNOME only)? (Y/N)"
+    echo "Would you like to add the minimize/maximize buttons onto your windows (GNOME only)? (Y/N)"
     read download_package
 fi
 
