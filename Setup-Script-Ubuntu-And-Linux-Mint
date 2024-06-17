@@ -1,0 +1,119 @@
+#!/bin/bash
+# set -x  # Enables printing of all commands
+
+echo "Do you want to have everything run automatically? (Yes/No)"
+read master_answer
+
+# Change hostname
+echo "Before we begin, do you want to change your hostname? (Y/N)"
+read download_package
+if [[ ${download_package,,} == "y" ]]; then
+    echo "Please enter your desired hostname:"
+    read desired_hostname
+    echo "Changing hostname to $desired_hostname"
+    sudo hostnamectl set-hostname "$desired_hostname" || echo "Failed to change hostname"
+fi
+
+if [[ ${master_answer,,} = "yes" ]]; then
+    auto_confirm=true
+    echo "starting automatic setup"
+elif [[ ${master_answer,,} = "no" ]]; then
+    echo "starting manual setup" ||
+    auto_confirm=false
+fi
+
+# edits apt config file for parallel downloads
+if [[ ${master_answer,,} = "yes" ]]; then
+    echo "Configuring apt parallel downloads"
+    sudo cp /etc/apt/apt.conf /etc/apt/apt.conf.bak || { echo "Failed to locate apt file directory"; exit 1; }
+    sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/apt/apt.conf || echo "Failed to eonfigure apt parallel downloads"
+elif [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you like to configure apt parallel downloads? (Y/N)"
+    read download_answer
+    if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
+        echo "Configuring apt parallel downloads"
+        sudo cp /etc/apt/apt.conf /etc/apt/apt.conf.bak || { echo "Failed to locate apt file directory"; exit 1; }
+        sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/apt/apt.conf || echo "Failed to eonfigure apt parallel downloads"
+    elif [[ ${download_answer,,} = "n" ]]; then
+        echo "Download cancelled"
+    else
+        echo "Invalid input. Please enter a valid input"
+    fi
+fi
+
+# List of packages
+packages=("pip" "pnpm" "gnome-tweaks" "gnome-extensions-app" "code" "gparted" "filezilla" "nano" "discord" "git" "gimp" "thunderbird" "vlc")
+# downloads all the packages
+for package in "${packages[@]}"
+do 
+    if [[ ${master_answer,,} = "no" ]]; then
+        echo "Do you want to download $package? (Y/N)"
+        read download_package
+        if [[ ${download_package,,} == "n" ]]; then
+            echo "Skipping $package"
+            continue
+        fi
+    fi
+if [[ $package = "code" ]]; then
+    echo "installing vs code ubuntu version...................."
+    sudo apt install -y software-properties-common apt-transport-https wget
+    wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+    sudo apt install -y code 
+else
+    echo "Downloading $package..."
+    sudo apt install -y $package || echo "Failed to download $package"
+fi
+done 
+
+# upgrades packages. Opera needs packages updated before installing
+
+if [[ ${master_answer,,} = "no" ]]; then
+	echo "Do you want to update all packages (note - reccomended for Opera install)? (Y/N)"
+	read download_package
+	if [[ ${download_package,,} != "n" ]]; then
+        	echo "Upgrading packages"
+		echo "Upgrading all packages"
+		sudo apt-get update -y || echo "Failed to update $package"
+        sudo apt-get upgrade -y || echo "Failed to upgrade $package"
+		echo "things were upgraded right so ima dip."
+	fi
+fi
+
+if [[ ${master_answer,,} = "no" ]]; then
+	echo "Do you want to install and configure Opera? (Y/N)"
+	read download_package
+	if [[ ${download_package,,} != "n" ]]; then
+        	echo "Installing Opera"
+	
+		sudo apt install -y dirmngr ca-certificates software-properties-common apt-transport-https curl -y|| echo "Failed to install apt-plugins-core"
+		echo "configuring Opera"
+		curl -fsSL https://deb.opera.com/archive.key | gpg --dearmor | sudo tee /usr/share/keyrings/opera.gpg > /dev/null || echo "Failed to add Opera gpg key try again"
+		echo deb [arch=amd64 signed-by=/usr/share/keyrings/opera.gpg] https://deb.opera.com/opera-stable/ stable non-free | sudo tee /etc/apt/sources.list.d/opera.list || echo "Failed to install Opera browser reposotory, please retry script"
+		sudo apt install -y opera-stable || echo "Failed to download Opera"
+		echo "Opera successfully installed"
+	fi
+fi
+
+if [[ ${master_answer,,} = "no" ]]; then
+	echo "Do you want to install Multimedia Codecs? (Y/N)"
+	read download_package
+	if [[ ${download_package,,} != "n" ]]; then
+        	echo "Installing Multimedia Codecs"
+# Multimedia codecs
+        sudo apt-get -y install ubuntu-restricted-extras || echo "failed line 104 cannot install multimedia codecs sorry :("
+	fi 
+fi
+
+# Reboots to set in changes
+if [[ ${master_answer,,} = "no" ]]; then
+    echo "Would you like to reboot to apply/view changes? (Y/N)"
+    read download_package
+    if [[ ${download_package,,} = "n" ]]; then
+    echo "finished script"
+        if [[ ${download_package,,} != "n" ]]; then
+	    echo "Rebooting"
+	    reboot || echo "Failed to reboot"
+        fi
+    fi
+fi
