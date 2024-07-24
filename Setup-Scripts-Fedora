@@ -133,7 +133,7 @@ fi
 
 if [[ ${download_package,,} != "n" ]]; then
     echo "Adding minimize, maximize, and close buttons"
-    gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close' || echo "Failed to add minimize/maximize buttons"
+    gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close" || echo "Failed to add minimize/maximize buttons"
     echo "adding dock"
     gnome-extensions enable dash-to-dock@micxgx.gmail.com || echo "Failed to add dock"
     echo "Minimize and maximize buttons added"
