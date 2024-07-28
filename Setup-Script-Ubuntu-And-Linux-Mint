@@ -22,25 +22,6 @@ elif [[ ${master_answer,,} = "no" ]]; then
     auto_confirm=false
 fi
 
-# edits apt config file for parallel downloads
-if [[ ${master_answer,,} = "yes" ]]; then
-    echo "Configuring apt parallel downloads"
-    sudo cp /etc/apt/apt.conf /etc/apt/apt.conf.bak || { echo "Failed to locate apt file directory"; exit 1; }
-    sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/apt/apt.conf || echo "Failed to eonfigure apt parallel downloads"
-elif [[ ${master_answer,,} = "no" ]]; then
-    echo "Would you like to configure apt parallel downloads? (Y/N)"
-    read download_answer
-    if [[ ${download_answer,,} = "y" || $download_answer = "" ]]; then
-        echo "Configuring apt parallel downloads"
-        sudo cp /etc/apt/apt.conf /etc/apt/apt.conf.bak || { echo "Failed to locate apt file directory"; exit 1; }
-        sudo sed -i '/max_parallel_downloads/c\max_parallel_downloads=10' /etc/apt/apt.conf || echo "Failed to eonfigure apt parallel downloads"
-    elif [[ ${download_answer,,} = "n" ]]; then
-        echo "Download cancelled"
-    else
-        echo "Invalid input. Please enter a valid input"
-    fi
-fi
-
 # List of packages
 packages=("pip" "pnpm" "gnome-tweaks" "gnome-extensions-app" "code" "gparted" "filezilla" "nano" "discord" "git" "gimp" "thunderbird" "vlc")
 # downloads all the packages
